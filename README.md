@@ -10,7 +10,7 @@ The general idea is to provide a tool that allows evaluating the use of differen
 
 ## Structure
 
-1. [TasksProducer](composeApp/src/commonMain/kotlin/dev/magnumrocha/coroutines/core/TasksProducer.kt): Responsible for producing tasks to be processed by the [TaskProcessor](src/commonMain/kotlin/dev/magnumrocha/coroutines/core/TasksProcessor.kt).
+1. [TasksProducer](composeApp/src/commonMain/kotlin/dev/magnumrocha/coroutines/core/TasksProducer.kt): Responsible for producing tasks to be processed by the [TaskProcessor](composeApp/src/commonMain/kotlin/dev/magnumrocha/coroutines/core/TasksProcessor.kt).
    
    It generates random tasks in a provided time interval, using Coroutine Scope provided on its instantiation.
 
