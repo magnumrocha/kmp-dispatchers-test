@@ -1,0 +1,23 @@
+name: KMP - Dispatchers
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'adopt'
+          java-version: 22
+
+      - name: Run Tests
+        run: ./gradlew composeApp:allTests
