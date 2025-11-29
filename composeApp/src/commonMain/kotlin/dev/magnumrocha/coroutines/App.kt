@@ -183,7 +183,7 @@ private fun TasksBucketItem(
     onDispatcherSelected: (TaskBucket, CoroutineDispatcher) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isDispatcherSelected by remember { mutableStateOf(false) }
+    var isDispatcherSelected by remember { mutableStateOf(taskState.state != null) }
 
     Column(
         modifier = modifier.padding(horizontal = 16.dp),
