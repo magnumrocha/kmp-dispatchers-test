@@ -70,8 +70,9 @@ class TasksProcessorImpl(
         delay(10.milliseconds)
     }
 
-    private suspend fun fakeIntensiveCPUTasksProcess() {
-        delay(100.milliseconds)
+    private fun fakeIntensiveCPUTasksProcess() {
+        val randomList = List(1_000_000) { Random.nextInt() }
+        randomList.sorted()
     }
 
     private fun fakeIOTasksProcess() {
