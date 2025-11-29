@@ -27,22 +27,22 @@ class TasksProcessorImpl(
         const val TAG = "TasksProcessor"
     }
 
-    private val _tasksUpdates = MutableSharedFlow<TasksState>()
-    private val _dispatchersUpdates = MutableStateFlow(initialDispatchers.associateWith { 0 })
+    private val tasksUpdates = MutableSharedFlow<TasksState>()
+    private val dispatchersUpdatesCounter = MutableStateFlow(initialDispatchers.associateWith { 0 })
 
-    override fun observeTasksUpdates(): Flow<TasksState> = _tasksUpdates
-    override fun observeDispatchersUpdates(): Flow<Map<CoroutineDispatcher, Int>> = _dispatchersUpdates
+    override fun observeTasksUpdates(): Flow<TasksState> = tasksUpdates
+    override fun observeDispatchersUpdates(): Flow<Map<CoroutineDispatcher, Int>> = dispatchersUpdatesCounter
 
     override fun enqueue(tasksBucket: TaskBucket, dispatcher: CoroutineDispatcher) {
         scope.launch {
-            _tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.IDLE, 0))
+            tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.IDLE, 0))
         }
         addToDispatcher(dispatcher, tasksBucket.amount)
         launchTasksOnDispatcher(dispatcher, tasksBucket)
     }
 
     private fun addToDispatcher(dispatcher: CoroutineDispatcher, taskAmount: Int) {
-        _dispatchersUpdates.update {
+        dispatchersUpdatesCounter.update {
             it.toMutableMap().apply {
                 put(dispatcher, get(dispatcher)?.plus(taskAmount) ?: taskAmount)
             }
@@ -51,7 +51,7 @@ class TasksProcessorImpl(
 
     private fun launchTasksOnDispatcher(dispatcher: CoroutineDispatcher, tasksBucket: TaskBucket) {
         scope.launch(dispatcher) {
-            _tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.PROCESSING, 0))
+            tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.PROCESSING, 0))
             for (taskNumber in 1..tasksBucket.amount) {
                 debugLog(TAG, "Processing task $taskNumber of type ${tasksBucket.type}")
                 when (tasksBucket.type) {
@@ -59,10 +59,10 @@ class TasksProcessorImpl(
                     TaskType.CPU_INTENSIVE -> fakeIntensiveCPUTasksProcess()
                     TaskType.BLOCK -> fakeIOTasksProcess()
                 }
-                _tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.PROCESSING, taskNumber))
-                _dispatchersUpdates.update { it.toMutableMap().apply { put(dispatcher, get(dispatcher)?.minus(1) ?: 0) } }
+                tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.PROCESSING, taskNumber))
+                dispatchersUpdatesCounter.update { it.toMutableMap().apply { put(dispatcher, get(dispatcher)?.minus(1) ?: 0) } }
             }
-            _tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.DONE, tasksBucket.amount))
+            tasksUpdates.emit(TasksState(tasksBucket, TasksProcessState.DONE, tasksBucket.amount))
         }
     }
 
