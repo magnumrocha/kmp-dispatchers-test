@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 
 interface TasksProcessor {
@@ -67,7 +68,14 @@ class TasksProcessorImpl(
     }
 
     private suspend fun fakeUITaskProcess() {
-        delay(10.milliseconds)
+        val randomLayoutBounds = List(100) { Random.nextInt(0, 1000) }
+        randomLayoutBounds.chunked(2).forEach { (width, height) ->
+            // simulate layout measurement and drawing
+            val area = width * height
+            val aspect = width.toFloat() / height.toFloat()
+            debugLog(TAG, "Drawing a rectangle of area $area and aspect ratio $aspect")
+            delay(1.milliseconds)
+        }
     }
 
     private fun fakeIntensiveCPUTasksProcess() {
